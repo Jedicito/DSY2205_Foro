@@ -1,0 +1,30 @@
+-- =====================================================================
+-- Sistema de Foros en Línea - Paso 0: usuario propio de la aplicación
+-- ---------------------------------------------------------------------
+-- PLANTILLA. Copia este archivo como 00_crear_usuario_app.sql (que está
+-- excluido del repositorio) y escribe ahí la clave real.
+--
+-- Ejecutar como ADMIN en Database Actions > SQL (botón "Run Script").
+-- Requisitos de la clave: 12 a 30 caracteres, con mayúscula, minúscula
+-- y número; sin comillas dobles.
+--
+-- Por qué un usuario propio: los microservicios no usan ADMIN.
+-- FORO_APP solo puede iniciar sesión y trabajar sobre sus propias
+-- tablas (principio de mínimo privilegio).
+-- =====================================================================
+
+DECLARE
+    v_existe NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_existe FROM DBA_USERS WHERE USERNAME = 'FORO_APP';
+    IF v_existe = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE USER FORO_APP IDENTIFIED BY "EscribeAquiLaClave2026"';
+    END IF;
+END;
+/
+
+-- Único privilegio de sistema: poder conectarse.
+GRANT CREATE SESSION TO FORO_APP;
+
+-- Espacio para guardar los datos de sus tablas.
+ALTER USER FORO_APP QUOTA UNLIMITED ON DATA;

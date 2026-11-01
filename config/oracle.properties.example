@@ -1,0 +1,22 @@
+# ------------------------------------------------------------------
+# Configuración de conexión a Oracle Autonomous Database
+# ------------------------------------------------------------------
+# 1. Copia este archivo en esta misma carpeta con el nombre:
+#        oracle.properties
+# 2. Descomprime el Wallet dentro de esta carpeta (config/).
+# 3. Completa los valores reales.
+#
+# oracle.properties y el Wallet están en .gitignore: nunca se suben
+# al repositorio. Ambos microservicios leen este mismo archivo.
+# ------------------------------------------------------------------
+
+# Nombre del servicio, tal como aparece en tnsnames.ora del Wallet (usar el _tp)
+oracle.tns-name=nombrebd_tp
+
+# Carpeta del Wallet, RELATIVA a la carpeta del microservicio.
+# Así funciona en cualquier computador, sin cambiar nada.
+oracle.wallet-path=../config/Wallet_NOMBREBD
+
+# Usuario propio de la aplicación, creado por sql/00_crear_usuario_app.sql
+oracle.app-user=FORO_APP
+oracle.app-password=CAMBIAR_POR_LA_CLAVE_REAL

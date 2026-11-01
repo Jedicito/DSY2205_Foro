@@ -1,0 +1,5 @@
+# Los scripts del Maven Wrapper necesitan su fin de línea correcto
+# en cualquier sistema operativo.
+mvnw      text eol=lf
+*.cmd     text eol=crlf
+*.sql     text eol=lf

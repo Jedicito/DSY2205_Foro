@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------
+# Credenciales y Wallet de Oracle: NUNCA se suben al repositorio
+# (en el repo solo quedan las plantillas *.example)
+# ---------------------------------------------------------------
+config/oracle.properties
+config/Wallet_*/
+**/Wallet_*/
+Wallet_*.zip
+sql/00_crear_usuario_app.sql
+
+# ---------------------------------------------------------------
+# Compilación (Maven)
+# ---------------------------------------------------------------
+target/
+.mvn/wrapper/maven-wrapper.jar
+HELP.md
+
+# ---------------------------------------------------------------
+# IDEs y sistema operativo
+# ---------------------------------------------------------------
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------
+*.log
