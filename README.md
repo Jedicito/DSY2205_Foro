@@ -115,6 +115,61 @@ Ejemplo de modificación (todos los campos son opcionales):
 
 El hash de la clave nunca se incluye en las respuestas.
 
+### ms-foro (puerto 8082)
+
+Leer el foro es público; publicar, modificar y eliminar requiere iniciar sesión.
+
+**Categorías** (catálogo de solo lectura)
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| `GET` | `/api/categorias` | Público | Listar categorías |
+| `GET` | `/api/categorias/{id}` | Público | Ver una categoría |
+| `GET` | `/api/categorias/{id}/temas` | Público | **Consulta:** temas de una categoría |
+
+**Temas**
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| `GET` | `/api/temas` | Público | Listar temas, del más reciente al más antiguo |
+| `GET` | `/api/temas/{id}` | Público | Ver un tema |
+| `GET` | `/api/temas/buscar?texto=...` | Público | **Consulta:** búsqueda por palabra clave en título o contenido |
+| `GET` | `/api/temas/autor/{nombreUsuario}` | Público | **Consulta:** temas publicados por un usuario |
+| `GET` | `/api/temas/mas-comentados?limite=5` | Público | **Consulta:** ranking de temas con más comentarios |
+| `POST` | `/api/temas` | Autenticado | Publicar un tema |
+| `PUT` | `/api/temas/{id}` | Solo el autor | Modificar título, contenido o categoría |
+| `DELETE` | `/api/temas/{id}` | Autor o ADMIN | Eliminar (queda como `ELIMINADO`, no se borra) |
+
+**Comentarios**
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| `GET` | `/api/temas/{temaId}/comentarios` | Público | Comentarios de un tema |
+| `POST` | `/api/temas/{temaId}/comentarios` | Autenticado | Comentar un tema |
+| `GET` | `/api/comentarios/{id}` | Público | Ver un comentario |
+| `PUT` | `/api/comentarios/{id}` | Solo el autor | Modificar el comentario |
+| `DELETE` | `/api/comentarios/{id}` | Autor o ADMIN | Eliminar (queda como `ELIMINADO`, no se borra) |
+
+Ejemplo para publicar un tema:
+
+```json
+{
+  "titulo": "¿Qué IDE recomiendan para Java?",
+  "contenido": "Estoy entre IntelliJ y VS Code. ¿Cuál usan ustedes?",
+  "categoriaId": 1
+}
+```
+
+Ejemplo para comentar:
+
+```json
+{
+  "contenido": "VS Code con el Extension Pack for Java funciona muy bien."
+}
+```
+
+Un tema o comentario eliminado deja de aparecer en todos los listados y consultas, y su `GET` responde 404. En Oracle sigue existiendo con `ESTADO = 'ELIMINADO'`.
+
 ## Puesta en marcha
 
 ### 1. Base de datos
