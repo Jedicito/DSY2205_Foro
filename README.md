@@ -18,7 +18,7 @@ Ambos comparten una misma base de datos Oracle. Las tablas se separan por prefij
 ## Tecnologías
 
 - Java 21 (compatible con JDK 21 o superior)
-- Spring Boot 4.1 (Web MVC, Data JPA, Validation)
+- Spring Boot 4.1 (Web MVC, Data JPA, Security, Validation)
 - Oracle Autonomous Database (Transaction Processing) con conexión por Wallet
 - Maven Wrapper (no requiere instalar Maven)
 
@@ -31,9 +31,23 @@ foros-en-linea/
 ├── sql/
 │   ├── 00_crear_usuario_app.sql.example # Plantilla: crea el usuario FORO_APP
 │   └── 01_esquema_y_datos.sql           # Tablas y datos de prueba
+├── postman/
+│   └── Foros-en-Linea.postman_collection.json
 ├── ms-usuarios/                         # Microservicio de usuarios
 └── ms-foro/                             # Microservicio de foro
 ```
+
+Cada microservicio sigue la misma organización por capas:
+
+| Paquete | Contenido |
+|---|---|
+| `controller` | Endpoints REST |
+| `service` | Reglas de negocio y permisos por autor o rol |
+| `repository` | Acceso a Oracle con Spring Data JPA, incluidas las consultas |
+| `model` | Entidades JPA mapeadas a las tablas |
+| `dto` | Datos de entrada (con validaciones) y de salida en JSON |
+| `security` | Spring Security: HTTP Basic, BCrypt y roles |
+| `error` | Manejo global de errores en formato JSON |
 
 ## Modelo de datos
 
@@ -170,6 +184,43 @@ Ejemplo para comentar:
 
 Un tema o comentario eliminado deja de aparecer en todos los listados y consultas, y su `GET` responde 404. En Oracle sigue existiendo con `ESTADO = 'ELIMINADO'`.
 
+## Manejo de errores
+
+Todos los errores, incluidos los de seguridad, responden con el mismo formato JSON:
+
+```json
+{
+  "timestamp": "2026-11-02T10:15:30",
+  "status": 400,
+  "error": "Bad Request",
+  "mensaje": "Los datos enviados no son válidos",
+  "ruta": "/api/usuarios",
+  "detalles": {
+    "email": "El email no tiene un formato válido",
+    "password": "La clave debe tener entre 8 y 72 caracteres"
+  }
+}
+```
+
+| Código | Cuándo |
+|---|---|
+| 400 | Datos inválidos, JSON mal formado o parámetro faltante |
+| 401 | Sin credenciales, credenciales incorrectas o usuario deshabilitado |
+| 403 | El rol no tiene permiso, o el recurso pertenece a otro usuario |
+| 404 | El recurso no existe o fue eliminado |
+| 409 | Nombre de usuario o email ya registrado |
+| 500 | Error inesperado (se registra en el log sin exponer detalles internos) |
+
+## Pruebas con Postman
+
+`postman/Foros-en-Linea.postman_collection.json` contiene 34 peticiones en tres carpetas: `ms-usuarios`, lecturas y consultas del foro, y escritura y roles del foro.
+
+- Importar en Postman con **Import** y seleccionar el archivo.
+- Cada petición ya trae su usuario (Basic Auth) y su JSON.
+- Cada petición verifica automáticamente el código de respuesta esperado (pestaña *Test Results*).
+- Los ids de lo que se crea (usuario, tema, comentario) se guardan solos en variables de la colección.
+- Para ejecutarla completa: clic derecho en la colección → **Run**. Debe partir con los datos recién cargados por `sql/01_esquema_y_datos.sql`, porque algunas pruebas crean registros que no se pueden repetir.
+
 ## Puesta en marcha
 
 ### 1. Base de datos
@@ -189,6 +240,8 @@ Los microservicios se conectan con el usuario `FORO_APP`, que solo puede conecta
 3. Completar el nombre del servicio (`_tp` del archivo `tnsnames.ora`), el nombre de la carpeta del Wallet y la clave de `FORO_APP`.
 
 `config/oracle.properties`, el Wallet y `sql/00_crear_usuario_app.sql` están excluidos del repositorio por `.gitignore`.
+
+> **Revisión de la entrega:** en el archivo comprimido entregado, `config/oracle.properties` y el Wallet ya vienen incluidos y apuntan a la base en Oracle Cloud, con los datos cargados. Basta con ejecutar los microservicios (paso 3).
 
 ### 3. Ejecución
 

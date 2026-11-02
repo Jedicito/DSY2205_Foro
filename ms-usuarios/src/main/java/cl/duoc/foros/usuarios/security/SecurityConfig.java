@@ -3,13 +3,14 @@ package cl.duoc.foros.usuarios.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import cl.duoc.foros.usuarios.error.RespuestasSeguridad;
 
 /**
  * Seguridad del microservicio:
@@ -26,7 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, RespuestasSeguridad respuestas) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -40,7 +41,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
                 // Todo lo demás requiere iniciar sesión
                 .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults());
+            // Errores 401 y 403 con el mismo formato JSON que el resto de la API
+            .httpBasic(basic -> basic.authenticationEntryPoint(respuestas))
+            .exceptionHandling(errores -> errores
+                .authenticationEntryPoint(respuestas)
+                .accessDeniedHandler(respuestas));
 
         return http.build();
     }
