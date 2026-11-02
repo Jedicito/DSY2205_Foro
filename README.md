@@ -72,6 +72,49 @@ El estado `BANEADO` queda reservado para un futuro microservicio de moderación.
 | `USUARIO` | Publica y comenta temas; edita y elimina solo su propio contenido |
 | `ADMIN` | Además administra usuarios y puede eliminar temas y comentarios de cualquiera |
 
+## Seguridad
+
+- Autenticación **HTTP Basic**: usuario y clave en cada petición (en Postman, pestaña *Authorization → Basic Auth*).
+- Sin sesiones en el servidor; CSRF desactivado por ser una API REST.
+- Claves almacenadas con **BCrypt**.
+- Un usuario deshabilitado no puede autenticarse, aunque su clave sea correcta.
+
+## Endpoints
+
+### ms-usuarios (puerto 8081)
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| `POST` | `/api/usuarios` | Público | Registro; el usuario nuevo siempre queda con rol `USUARIO` |
+| `GET` | `/api/auth/login` | Autenticado | Valida las credenciales y devuelve los datos y el rol del usuario |
+| `GET` | `/api/usuarios` | ADMIN | Lista todos los usuarios, incluidos los deshabilitados |
+| `GET` | `/api/usuarios/{id}` | El propio usuario o ADMIN | Ver un usuario |
+| `PUT` | `/api/usuarios/{id}` | El propio usuario o ADMIN | Modificar email, nombre o clave; solo ADMIN cambia `rol` y `activo` |
+| `DELETE` | `/api/usuarios/{id}` | ADMIN | Deshabilita el usuario (no lo borra) |
+
+Ejemplo de registro:
+
+```json
+{
+  "nombreUsuario": "pvaldes",
+  "email": "pvaldes@correo.cl",
+  "password": "Clave#2026",
+  "nombreCompleto": "Pedro Valdés"
+}
+```
+
+Ejemplo de modificación (todos los campos son opcionales):
+
+```json
+{
+  "nombreCompleto": "Pedro Valdés Rojas",
+  "rol": "ADMIN",
+  "activo": true
+}
+```
+
+El hash de la clave nunca se incluye en las respuestas.
+
 ## Puesta en marcha
 
 ### 1. Base de datos
