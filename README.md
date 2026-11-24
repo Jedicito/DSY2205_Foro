@@ -1,9 +1,9 @@
 # Sistema de Foros en Línea
 
-Backend basado en microservicios para un foro de **Informática**.
-Desarrollado con Spring Boot y Oracle Autonomous Database (Oracle Cloud).
+Aplicación Full Stack para un foro de **Informática**: frontend en **Angular** y backend en microservicios
+Spring Boot con Oracle Autonomous Database (Oracle Cloud).
 
-Asignatura: Desarrollo Full Stack III (DSY2205) — Evaluación Sumativa 1.
+Asignatura: Desarrollo Full Stack III (DSY2205) — Evaluación Sumativa 2 (continúa la Sumativa 1).
 
 ## Microservicios
 
@@ -11,8 +11,9 @@ Asignatura: Desarrollo Full Stack III (DSY2205) — Evaluación Sumativa 1.
 |---|---|---|
 | `ms-usuarios` | 8081 | Registro, modificación, deshabilitación y login de usuarios |
 | `ms-foro` | 8082 | Búsqueda, visualización, publicación y comentarios de temas |
+| `ms-moderacion` | 8083 | Solo ADMIN: banear y restaurar temas y comentarios que incumplen las normas |
 
-Ambos comparten una misma base de datos Oracle. Las tablas se separan por prefijo:
+Los tres comparten una misma base de datos Oracle. Las tablas se separan por prefijo:
 `USR_*` pertenecen a usuarios y `FOR_*` al foro.
 
 ## Tecnologías
@@ -33,8 +34,11 @@ foros-en-linea/
 │   └── 01_esquema_y_datos.sql           # Tablas y datos de prueba
 ├── postman/
 │   └── Foros-en-Linea.postman_collection.json
+├── arquetipo/foro-ms-arquetipo/         # Arquetipo Maven de los microservicios
 ├── ms-usuarios/                         # Microservicio de usuarios
-└── ms-foro/                             # Microservicio de foro
+├── ms-foro/                             # Microservicio de foro
+├── ms-moderacion/                       # Microservicio de moderación (generado con el arquetipo)
+└── frontend/                            # Aplicación Angular (TecnoForo)
 ```
 
 Cada microservicio sigue la misma organización por capas:
@@ -270,3 +274,140 @@ En VS Code, abrir la carpeta del microservicio y usar **Run** sobre la clase pri
 | `rmunoz` | `Usuario#2026` | USUARIO | Deshabilitado |
 
 Las claves se guardan en la base como hash BCrypt.
+
+---
+
+# Sumativa 2: arquetipo, moderación y frontend
+
+## Arquetipo Maven `foro-ms-arquetipo`
+
+Plantilla común de los microservicios, en `arquetipo/foro-ms-arquetipo`. Se construyó a partir de la
+estructura que ya compartían `ms-usuarios` y `ms-foro`, y genera un microservicio listo para trabajar con:
+
+- `pom.xml` con Spring Boot 4.1, Java 21, Web MVC, Data JPA, Security, Validation y drivers de Oracle (ojdbc11 + oraclepki).
+- Capas `controller / service / repository / model / dto` bajo el paquete elegido.
+- `error/`: formato JSON común de errores (`ErrorRespuesta`), `@RestControllerAdvice` y respuestas 401/403 en JSON.
+- `security/`: HTTP Basic sin sesión, BCrypt y autenticación contra `USR_USUARIO` (roles `USUARIO` y `ADMIN`).
+- `application.properties` que lee las credenciales de `config/oracle.properties` y se conecta con el Wallet.
+- Maven Wrapper.
+
+Propiedades del arquetipo: `groupId`, `artifactId`, `version`, `package`, `puerto` y `descripcion`.
+
+```bash
+# 1. Instalar el arquetipo en el repositorio local de Maven
+cd arquetipo/foro-ms-arquetipo
+mvn install
+
+# 2. Generar un microservicio nuevo (así se generó ms-moderacion)
+cd ../..
+mvn archetype:generate -DarchetypeGroupId=cl.duoc.foros -DarchetypeArtifactId=foro-ms-arquetipo \
+    -DarchetypeVersion=1.0.0 -DgroupId=cl.duoc.foros -DartifactId=ms-moderacion -Dversion=0.1.0 \
+    -Dpackage=cl.duoc.foros.moderacion -Dpuerto=8083 -DinteractiveMode=false
+```
+
+## ms-moderacion (puerto 8083, solo ADMIN)
+
+Generado con el arquetipo. Cambia el estado de temas y comentarios a `BANEADO` (o los restaura a `ACTIVO`).
+Nada se borra de la base. Usa las mismas tablas `FOR_TEMA` y `FOR_COMENTARIO`, que ya tenían el estado `BANEADO`.
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/moderacion/resumen` | Totales de temas y comentarios activos y baneados |
+| GET | `/api/moderacion/temas?estado=BANEADO` | Temas por estado (`ACTIVO`, `ELIMINADO`, `BANEADO`) |
+| GET | `/api/moderacion/comentarios?estado=BANEADO` | Comentarios por estado |
+| PUT | `/api/moderacion/temas/{id}/banear` | Banea un tema activo (409 si no está activo) |
+| PUT | `/api/moderacion/temas/{id}/restaurar` | Restaura un tema baneado |
+| PUT | `/api/moderacion/comentarios/{id}/banear` | Banea un comentario activo |
+| PUT | `/api/moderacion/comentarios/{id}/restaurar` | Restaura un comentario baneado |
+
+Un USUARIO recibe 403 y una petición sin credenciales recibe 401. La carpeta **4. ms-moderacion (ADMIN)**
+de la colección de Postman prueba todos los casos.
+
+```bash
+cd ms-moderacion
+./mvnw spring-boot:run      # Windows: mvnw.cmd spring-boot:run
+```
+
+## Frontend Angular: TecnoForo
+
+En `frontend/`. Angular 22 + Bootstrap 5 + Bootstrap Icons. En esta entrega **no se comunica con los
+microservicios**: los datos viven en listas estáticas de Angular (`src/app/datos/datos-iniciales.ts`),
+con los mismos registros de prueba del script SQL.
+
+```bash
+cd frontend
+npm install
+npm start        # http://localhost:4200
+```
+
+Usuarios de prueba: `admin` / `Admin#2026` (ADMIN) y `jperez` / `Usuario#2026` (USUARIO).
+`rmunoz` está deshabilitado y no puede entrar.
+
+### Pantallas
+
+| Pantalla | Ruta | Acceso |
+|---|---|---|
+| Inicio (categorías, recientes, más comentados, buscador) | `/` | Público |
+| Temas por categoría y búsqueda | `/temas?categoria=&q=` | Público |
+| Detalle de tema y comentarios | `/temas/:id` | Público (comentar requiere sesión) |
+| Publicar tema | `/temas/nuevo` | USUARIO y ADMIN |
+| Inicio de sesión | `/login` | Sin sesión |
+| Registro de usuarios | `/registro` | Sin sesión |
+| Recuperar contraseña (2 pasos, correo simulado) | `/recuperar` | Sin sesión |
+| Modificación de perfil y cambio de contraseña | `/perfil` | USUARIO y ADMIN |
+| Moderación: banear y restaurar | `/admin/moderacion` | Solo ADMIN |
+| Gestión de usuarios: habilitar, deshabilitar y cambiar rol | `/admin/usuarios` | Solo ADMIN |
+
+### Roles
+
+- **USUARIO**: publica temas, comenta, elimina sus propios temas y comentarios, y edita su perfil.
+- **ADMIN**: todo lo anterior, más eliminar o banear cualquier tema o comentario, restaurar lo baneado
+  y gestionar usuarios. Las rutas de administración están protegidas con `adminGuard`.
+
+### Validaciones
+
+Todos los formularios usan formularios reactivos con mensajes bajo cada campo.
+
+La contraseña tiene **7 reglas de seguridad**: obligatoria, mínimo 8 caracteres, máximo 20, una mayúscula,
+una minúscula, un número y un carácter especial, sin espacios. Se muestran en vivo con la lista de reglas.
+
+Además se valida:
+
+- Nombre de usuario: 3 a 20 caracteres en minúscula, números, punto o guion bajo, sin repetir.
+- Nombre completo: solo letras.
+- Correo: formato válido y sin repetir.
+- Fecha de nacimiento: edad mínima de 14 años y no futura.
+- Contraseña: la confirmación debe coincidir.
+- Aceptar las normas del foro.
+- Título del tema: entre 10 y 150 caracteres. Contenido: entre 20 y 4000.
+- Comentario: entre 2 y 2000 caracteres.
+- Ningún texto puede contener solo espacios.
+- Código de recuperación: 6 dígitos.
+
+### Diseño responsivo
+
+Grid de 12 columnas de Bootstrap con tres tamaños de pantalla: móvil (`col-12`), tablet (`col-sm-*` / `col-md-*`)
+y escritorio (`col-lg-*` / `col-xl-*`). El menú se colapsa en móvil, las columnas secundarias de las
+tablas se ocultan en pantallas pequeñas (`d-none d-md-table-cell`) y hay ajustes con `@media` en `styles.css`.
+
+### Patrones de diseño
+
+- **Facade** (`src/app/facade/foro.facade.ts`): los componentes solo hablan con `ForoFacade`, que concentra
+  la lógica de negocio (sesión, permisos por rol, publicar, comentar, moderar). Los componentes no conocen
+  las listas ni los stores. Cuando el frontend se conecte al backend, solo cambiará el interior del facade.
+  Sus métodos se agrupan igual que los microservicios: usuarios, foro y moderación.
+- **Observer** (`src/app/servicios/*.store.ts`): los stores guardan las listas en *signals*. Cada cambio
+  crea una lista nueva y todas las vistas que la observan se actualizan solas: contadores, listados y
+  panel de moderación.
+- **Singleton**: los stores y el facade son servicios `providedIn: 'root'`, con una sola instancia en
+  toda la aplicación.
+- **Guard** (`src/app/guards/guards.ts`): controla el acceso a las rutas según la sesión y el rol.
+
+```
+Componentes (páginas) ──> ForoFacade ──> UsuariosStore / ForoStore (signals) ──> datos-iniciales.ts
+```
+
+## Estrategia de ramas
+
+Se usa **Trunk Based Development**: `main` es la rama principal y cada cambio se hace en una rama corta
+`feature/*` que se integra a `main` con merge (`feature/arquetipo`, `feature/ms-moderacion`, `feature/frontend`).

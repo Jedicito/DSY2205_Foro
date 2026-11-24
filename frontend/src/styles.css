@@ -1,0 +1,108 @@
+/* ------------------------------------------------------------------
+   TecnoForo - estilos globales (sobre Bootstrap 5)
+   Paleta: azul petróleo + naranja acento
+   ------------------------------------------------------------------ */
+:root {
+  --marca: #0f4c5c;
+  --marca-oscuro: #0a3540;
+  --marca-claro: #e6f1f3;
+  --acento: #f28f3b;
+  --fondo: #f5f7f8;
+  --bs-link-color-rgb: 15, 76, 92;
+  --bs-link-hover-color-rgb: 10, 53, 64;
+}
+
+body {
+  background: var(--fondo);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.texto-marca { color: var(--marca); }
+.texto-acento { color: var(--acento); }
+
+/* Barra de navegación y pie */
+.barra-nav { background: linear-gradient(90deg, var(--marca-oscuro), var(--marca)); }
+.pie { background: var(--marca-oscuro); color: #cfe3e7; }
+
+/* Botones de la marca */
+.btn-primario {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--marca);
+  --bs-btn-border-color: var(--marca);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--marca-oscuro);
+  --bs-btn-hover-border-color: var(--marca-oscuro);
+  --bs-btn-active-bg: var(--marca-oscuro);
+  --bs-btn-active-color: #fff;
+}
+.btn-outline-primario {
+  --bs-btn-color: var(--marca);
+  --bs-btn-border-color: var(--marca);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--marca);
+  --bs-btn-hover-border-color: var(--marca);
+  --bs-btn-active-bg: var(--marca);
+  --bs-btn-active-color: #fff;
+}
+.nav-pills { --bs-nav-pills-link-active-bg: var(--marca); }
+.nav-pills .nav-link { color: var(--marca); }
+.nav-pills .nav-link.active { color: #fff; }
+.list-group { --bs-list-group-active-bg: var(--marca); --bs-list-group-active-border-color: var(--marca); }
+.barra-marca { background: var(--acento); }
+
+/* Portada */
+.hero {
+  background: radial-gradient(circle at 85% 20%, rgba(242, 143, 59, .35), transparent 40%),
+              linear-gradient(135deg, var(--marca-oscuro), var(--marca));
+}
+.estadistica {
+  background: rgba(255, 255, 255, .12);
+  border-radius: .75rem;
+  padding: .75rem .5rem;
+}
+.estadistica strong { display: block; font-size: 1.6rem; line-height: 1; }
+.estadistica span { font-size: .8rem; opacity: .85; }
+
+/* Tarjetas */
+.tarjeta-categoria { transition: transform .15s ease, box-shadow .15s ease; border: 1px solid #e3e8ea; }
+.tarjeta-categoria:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(15, 76, 92, .12); }
+.tarjeta-categoria h3 { color: var(--marca-oscuro); }
+.icono-categoria {
+  flex: 0 0 48px; height: 48px; border-radius: .75rem;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--marca-claro); color: var(--marca); font-size: 1.4rem;
+}
+.badge-area { background: var(--marca-claro); color: var(--marca); font-weight: 500; }
+.tarjeta-tema { border-left: 4px solid var(--acento); }
+.tarjeta-form { border-top: 4px solid var(--marca); }
+.tarjeta-invitacion { background: var(--marca-claro); }
+.comentario { border-left: 3px solid var(--marca-claro); }
+.contenido-tema { white-space: pre-line; font-size: 1.05rem; }
+
+/* Perfil */
+.avatar {
+  width: 84px; height: 84px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--acento); color: #fff; font-size: 2.2rem; font-weight: 700;
+}
+
+/* Moderación */
+.resumen strong { display: block; font-size: 1.8rem; color: var(--marca); }
+.resumen span { font-size: .8rem; color: #6c757d; }
+.resumen-alerta strong { color: #dc3545; }
+
+/* Validaciones: mostrar los mensajes de error bajo el campo */
+.is-invalid ~ .invalid-feedback,
+.input-group .is-invalid ~ .invalid-feedback { display: block; }
+
+/* Ajustes por tamaño de pantalla (móvil, tablet, escritorio) */
+@media (max-width: 575.98px) {
+  .hero h1 { font-size: 1.6rem; }
+  main.container { padding-left: .75rem; padding-right: .75rem; }
+}
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .hero h1 { font-size: 2rem; }
+}
+@media (min-width: 992px) {
+  .tarjeta-tema { min-height: 170px; }
+}

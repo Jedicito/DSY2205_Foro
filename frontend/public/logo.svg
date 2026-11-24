@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="TecnoForo">
+  <rect x="4" y="8" width="44" height="32" rx="8" fill="#f28f3b"/>
+  <path d="M14 40 L14 50 L24 40 Z" fill="#f28f3b"/>
+  <rect x="18" y="20" width="42" height="30" rx="8" fill="#0f4c5c" stroke="#ffffff" stroke-width="2"/>
+  <path d="M50 50 L50 59 L41 50 Z" fill="#0f4c5c"/>
+  <path d="M30 29 L25 35 L30 41 M48 29 L53 35 L48 41 M41 27 L37 43" fill="none" stroke="#ffffff"
+        stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
