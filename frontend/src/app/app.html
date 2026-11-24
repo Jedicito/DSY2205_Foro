@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-lg navbar-dark barra-nav sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/">
+      <img src="logo.svg" alt="" width="32" height="32">
+      <span class="fw-bold">Tecno<span class="texto-acento">Foro</span></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+            aria-controls="menu" aria-expanded="false" aria-label="Abrir menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/temas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Temas</a></li>
+        @if (facade.autenticado()) {
+          <li class="nav-item"><a class="nav-link" routerLink="/temas/nuevo" routerLinkActive="active">Publicar</a></li>
+        }
+        @if (facade.esAdmin()) {
+          <li class="nav-item"><a class="nav-link" routerLink="/admin/moderacion" routerLinkActive="active"><i class="bi bi-shield-check me-1"></i>Moderación</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/admin/usuarios" routerLinkActive="active"><i class="bi bi-people me-1"></i>Usuarios</a></li>
+        }
+      </ul>
+      <div class="d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
+        @if (facade.sesion(); as u) {
+          <a class="nav-link text-white" routerLink="/perfil">
+            <i class="bi bi-person-circle me-1"></i>{{ u.nombreUsuario }}
+            <span class="badge ms-1" [class.text-bg-danger]="u.rol === 'ADMIN'" [class.text-bg-light]="u.rol === 'USUARIO'">{{ u.rol }}</span>
+          </a>
+          <button class="btn btn-outline-light btn-sm" type="button" (click)="salir()">Cerrar sesión</button>
+        } @else {
+          <a class="btn btn-outline-light btn-sm" routerLink="/login">Iniciar sesión</a>
+          <a class="btn btn-light btn-sm" routerLink="/registro">Registrarse</a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4 flex-grow-1">
+  <router-outlet />
+</main>
+
+<footer class="pie py-4 mt-auto">
+  <div class="container">
+    <div class="row g-3 small">
+      <div class="col-12 col-md-6">
+        <strong>TecnoForo</strong> · Sistema de Foros en Línea — Desarrollo Full Stack III (DSY2205)
+      </div>
+      <div class="col-12 col-md-6 text-md-end">
+        © {{ anio }} Cesar Seron · Angular + Bootstrap
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  @for (a of avisos.avisos(); track a.id) {
+    <div class="toast show align-items-center border-0" role="status" aria-live="polite"
+         [class.text-bg-success]="a.tipo === 'success'" [class.text-bg-danger]="a.tipo === 'danger'"
+         [class.text-bg-dark]="a.tipo === 'info'">
+      <div class="d-flex">
+        <div class="toast-body">{{ a.texto }}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Cerrar" (click)="avisos.cerrar(a.id)"></button>
+      </div>
+    </div>
+  }
+</div>
