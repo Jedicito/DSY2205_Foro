@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "15a287b1-f0e9-4d5d-86f4-d0369c7c8798",
     "name": "Foros en Línea",
-    "description": "Pruebas de ms-usuarios (8081) y ms-foro (8082). Ejecutar las carpetas en orden con los datos recién cargados por sql/01_esquema_y_datos.sql. Cada petición verifica automáticamente el código de respuesta esperado.",
+    "description": "Pruebas de ms-usuarios (8081), ms-foro (8082) y ms-moderacion (8083). Ejecutar las carpetas en orden con los datos recién cargados por sql/01_esquema_y_datos.sql. Cada petición verifica automáticamente el código de respuesta esperado.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1581,6 +1581,635 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "4. ms-moderacion (ADMIN)",
+      "item": [
+        {
+          "name": "01 Resumen sin iniciar sesión → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/resumen",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "02 Resumen como USUARIO → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/resumen",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "jperez",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Usuario#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "03 Resumen como ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/resumen",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "04 Temas activos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas?estado=ACTIVO",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "ACTIVO"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "05 Banear tema 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Queda BANEADO\", function () { pm.expect(pm.response.json().estado).to.eql(\"BANEADO\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas/1/banear",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas",
+                "1",
+                "banear"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "06 Banear tema 1 otra vez → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas/1/banear",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas",
+                "1",
+                "banear"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "07 Temas baneados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas?estado=BANEADO",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "BANEADO"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "08 Restaurar tema 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Vuelve a ACTIVO\", function () { pm.expect(pm.response.json().estado).to.eql(\"ACTIVO\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas/1/restaurar",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas",
+                "1",
+                "restaurar"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "09 Banear comentario 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/comentarios/2/banear",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "comentarios",
+                "2",
+                "banear"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "10 Comentarios baneados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/comentarios?estado=BANEADO",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "comentarios"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "BANEADO"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "11 Restaurar comentario 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/comentarios/2/restaurar",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "comentarios",
+                "2",
+                "restaurar"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "12 Banear tema inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas/9999/banear",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas",
+                "9999",
+                "banear"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "13 Estado inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseModeracion}}/api/moderacion/temas?estado=OTRO",
+              "host": [
+                "{{baseModeracion}}"
+              ],
+              "path": [
+                "api",
+                "moderacion",
+                "temas"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "OTRO"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Admin#2026",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
@@ -1607,6 +2236,10 @@
     {
       "key": "comentarioNuevoId",
       "value": ""
+    },
+    {
+      "key": "baseModeracion",
+      "value": "http://localhost:8083"
     }
   ]
 }
