@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Arquetipo Maven de los microservicios del Sistema de Foros en Línea.
+        Genera un microservicio Spring Boot con la estructura común del equipo:
+        capas controller / service / repository / model / dto, manejo de errores
+        en JSON, seguridad HTTP Basic con roles y conexión a Oracle Cloud con Wallet.
+    -->
+    <groupId>cl.duoc.foros</groupId>
+    <artifactId>foro-ms-arquetipo</artifactId>
+    <version>1.0.0</version>
+    <packaging>maven-archetype</packaging>
+    <name>foro-ms-arquetipo</name>
+    <description>Arquetipo de microservicio Spring Boot + Oracle Cloud para Foros en Línea</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>3.3.1</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-archetype-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <!-- Los recursos del arquetipo se copian tal cual; los filtra el arquetipo al generar -->
+                    <escapeString>\</escapeString>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
