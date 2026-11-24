@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="foro-ms-arquetipo">
+
+    <requiredProperties>
+        <!-- Puerto HTTP del microservicio (ms-usuarios 8081, ms-foro 8082, ms-moderacion 8083) -->
+        <requiredProperty key="puerto">
+            <defaultValue>8080</defaultValue>
+        </requiredProperty>
+        <!-- Descripción corta que aparece en el pom -->
+        <requiredProperty key="descripcion">
+            <defaultValue>Microservicio del Sistema de Foros en Linea</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
+
+    <fileSets>
+        <!-- Código Java: se filtra para reemplazar ${package} -->
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.java</include>
+            </includes>
+        </fileSet>
+        <!-- application.properties: sin filtrar (Spring Boot reemplaza @...@ al compilar) -->
+        <fileSet filtered="false" encoding="UTF-8">
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <!-- Maven Wrapper: se copia tal cual -->
+        <fileSet filtered="false">
+            <directory></directory>
+            <includes>
+                <include>mvnw</include>
+                <include>mvnw.cmd</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="false">
+            <directory>.mvn</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
